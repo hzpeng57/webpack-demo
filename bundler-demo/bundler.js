@@ -28,5 +28,25 @@ const moduleAnalyser = (filename) => {
     }
 };
 
-const moduleInfo = moduleAnalyser('./src/index.js');
-console.log(moduleInfo);
+const makeDependenciesGraph = (entry) => {
+    const graphArray = [moduleAnalyser(entry)];
+    for (let i = 0; i < graphArray.length; i++) {
+        const { dependencies } = graphArray[i];
+        for(let j in dependencies) {
+            const item = moduleAnalyser(dependencies[j]);
+            graphArray.push(item);
+        }
+    }
+
+    const graphInfo = {};
+    graphArray.forEach(item => {
+        graphInfo[item.filename] = {
+            dependencies: item.dependencies,
+            code: item.code
+        }
+    });
+    return graphInfo;
+};
+
+const graphInfo = makeDependenciesGraph('./src/index.js');
+console.log(graphInfo);
